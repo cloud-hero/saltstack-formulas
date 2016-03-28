@@ -12,3 +12,5 @@ newrelic:
   appname: myphpapp
   explain_enable: false
 ```
+
+Inspired mostly from (here)[https://github.com/saltstack-formulas/newrelic-formula].
