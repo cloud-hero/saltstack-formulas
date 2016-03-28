@@ -1,0 +1,16 @@
+{
+    "bootstrap": {{ salt['pillar.get']('consul:bootstrap', 'true')|lower }},
+    "server": {{ salt['pillar.get']('consul:server', 'true') }},
+    "advertise_addr": "{{ salt['pillar.get']('consul:advertise') }}",
+    "client_addr": "{{ salt['pillar.get']('consul:client_addr', '0.0.0.0') }}",
+    "bind_addr": "{{ salt['pillar.get']('consul:bind_addr', '0.0.0.0') }}",
+    "datacenter": "{{ salt['pillar.get']('consul:datacenter', 'CloudHero') }}",
+    "data_dir": "/var/consul",
+    "encrypt": "{{ salt['pillar.get']('consul:encrypt', 'BogdanSais2ReplaceThis==') }}",
+{%- if salt['pillar.get']('consul:join') %}
+    "retry_join": {{ salt['pillar.get']('consul:join') | replace("'", '"') }},
+{%- endif %}
+    "log_level": "INFO",
+    "enable_syslog": {{ salt['pillar.get']('consul:syslog', 'false') }}
+}
+
