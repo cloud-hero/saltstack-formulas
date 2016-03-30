@@ -14,3 +14,5 @@ redis:
   maxmemory-policy: allkeys-lru
 
 ```
+
+Inspired mostly from [here](https://github.com/saltstack-formulas/redis-formula).

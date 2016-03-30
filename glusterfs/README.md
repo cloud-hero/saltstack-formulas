@@ -33,4 +33,4 @@ glusterfs:
     enabled: true
 ```
 
-Inspired mostly from (here)[https://github.com/tcpcloud/salt-formula-glusterfs].
+Inspired mostly from [here](https://github.com/tcpcloud/salt-formula-glusterfs).

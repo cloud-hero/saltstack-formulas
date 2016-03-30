@@ -1,0 +1,45 @@
+{% set defaults = {
+    'config':{
+        'deamonize': True,
+        'verbose_level': 0,
+        'log_file': '/var/log/memcached.log',
+        'memory_cap': 64,
+        'port': 11211,
+        'user':' memcache',
+        'listen_address': '127.0.0.1',
+        'max_connections': 1024,
+        'lock_paged_memory': False,
+        'error_on_mem_full': False,
+        'max_core_file_limit': False,
+    }  
+} %}
+{% set memcached = salt['grains.filter_by']({
+    'Debian':{
+        'server': 'memcached',
+        'service': 'memcached',
+        'python': 'python-memcache',
+        'config_file': '/etc/memcached.conf',
+        'libmemcached': 'libmemcached-dev',
+    },
+    'RedHat': {
+        'server': 'memcached',
+        'service': 'memcached',
+        'python': 'python-memcached',
+        'config_file': '/etc/sysconfig/memcached',
+        'libmemcached': 'libmemcached-devel',
+    },
+    'Gentoo':{
+        'server': 'net-misc/memcached',
+        'service': 'memcached',
+        'python': 'dev-python/python-memcache',
+        'config_file': '/etc/conf.d/memcached',
+        'libmemcached': 'dev-libs/libmemcached',
+    },
+    'Arch':{
+        'server': 'memcached',
+        'service': 'memcached',
+        'python': 'python2-memcached',
+        'config_file': '/etc/memcached',
+        'libmemcached': 'libmemcached',
+    },
+    }, merge=salt['pillar.get']('memcached:lookup')) %}
