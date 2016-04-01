@@ -1,0 +1,15 @@
+{% import_yaml "mongodb/defaults.yaml" as defaults %}
+{% import_yaml "mongodb/osmap.yaml" as osmap %}
+{% import_yaml "mongodb/codenamemap.yaml" as codemap %}
+
+{% set distro_map = salt['pillar.get'](
+    'mongodb:lookup',
+    default=salt['grains.filter_by'](osmap),
+    merge=True) %}
+{% set code_map = salt['grains.filter_by'](codemap, grain='oscodename') %}
+
+{% do defaults.mongodb.update(distro_map) %}
+{% do defaults.mongodb.update(code_map) %}
+
+{% set mdb = salt['pillar.get']('mongodb', default=defaults.mongodb, merge=True) %}
+{% set ms = salt['pillar.get']('mongos', default=defaults.mongos, merge=True) %}
