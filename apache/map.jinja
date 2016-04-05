@@ -1,0 +1,112 @@
+{% import_yaml "apache/osfingermap.yaml" as osfingermap %}
+
+{% set apache = salt['grains.filter_by']({
+    'Debian': {
+        'server': 'apache2',
+        'service': 'apache2',
+        'configfile': '/etc/apache2/apache2.conf',
+        'portsfile': '/etc/apache2/ports.conf',
+
+        'mod_wsgi': 'libapache2-mod-wsgi',
+        'mod_php5': 'libapache2-mod-php5',
+        'mod_fcgid': 'libapache2-mod-fcgid',
+        'mod_pagespeed_source': 'https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_amd64.deb',
+
+        'vhostdir': '/etc/apache2/sites-available',
+        'confdir': '/etc/apache2/conf.d',
+        'confext': '.conf',
+        'default_site': 'default',
+        'default_site_ssl': 'default-ssl',
+        'logdir': '/var/log/apache2',
+        'logrotatedir': '/etc/logrotate.d/apache2',
+        'wwwdir': '/srv',
+        'use_require': False,
+    },
+    'RedHat': {
+        'server': 'httpd',
+        'service': 'httpd',
+        'configfile': '/etc/httpd/conf/httpd.conf',
+
+        'mod_wsgi': 'mod_wsgi',
+        'mod_php5': 'php',
+        'mod_pagespeed_source': 'https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_x86_64.rpm',
+
+        'vhostdir': '/etc/httpd/vhosts.d',
+        'confdir': '/etc/httpd/conf.d',
+        'confext': '.conf',
+        'default_site': 'default',
+        'default_site_ssl': 'default-ssl',
+        'logdir': '/var/log/httpd',
+        'logrotatedir': '/etc/logrotate.d/httpd',
+        'wwwdir': '/var/www',
+        'use_require': False,
+    },
+    'Suse': {
+        'server': 'apache2',
+        'service': 'apache2',
+        'configfile': '/etc/apache2/httpd.conf',
+
+        'mod_wsgi': 'apache2-mod_wsgi',
+        'mod_php5': 'apache2-mod_php5',
+        'mod_fcgid': 'apache2-mod_fcgid',
+
+        'vhostdir': '/etc/apache2/vhosts.d',
+        'confdir': '/etc/httpd/conf.d',
+        'confext': '.conf',
+        'default_site': 'vhost.template',
+        'default_site_ssl': 'vhost-ssl.template',
+        'logdir': '/var/log/apache2',
+        'wwwdir': '/srv/www',
+        'use_require': True,
+    },
+    'FreeBSD': {
+        'server': 'apache22',
+        'service': 'apache22',
+        'configfile': '/usr/local/etc/apache22/httpd.conf',
+
+        'mod_wsgi': 'ap22-mod_wsgi3',
+
+        'vhostdir': '/usr/local/etc/apache22/Includes',
+        'confdir': '/usr/local/etc/apache22/Includes',
+        'confext': '',
+        'default_site': 'default',
+        'default_site_ssl': 'default-ssl',
+        'logdir': '/var/log/',
+        'wwwdir': '/usr/local/www/apache22/',
+        'use_require': False,
+    },
+}, merge=salt['grains.filter_by']({
+    'trusty': {
+        'confext': '.conf',
+        'default_site': '000-default.conf',
+        'default_site_ssl': 'default-ssl.conf',
+        'use_require': True,
+    },
+    'utopic': {
+        'confext': '.conf',
+        'default_site': '000-default.conf',
+        'default_site_ssl': 'default-ssl.conf',
+        'use_require': True,
+    },
+    'vivid': {
+        'confext': '.conf',
+        'default_site': '000-default.conf',
+        'default_site_ssl': 'default-ssl.conf',
+        'use_require': True,
+    },
+    'wily': {
+        'confext': '.conf',
+        'default_site': '000-default.conf',
+        'default_site_ssl': 'default-ssl.conf',
+        'use_require': True,
+    },
+    'jessie': {
+        'wwwdir': '/var/www',
+        'confext': '.conf',
+        'default_site': '000-default.conf',
+        'default_site_ssl': 'default-ssl.conf',
+        'use_require': True,
+    },
+}, grain='oscodename', merge=salt['grains.filter_by'](
+    osfingermap
+, grain='osfinger', merge=salt['pillar.get']('apache:lookup')))) %}
