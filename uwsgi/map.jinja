@@ -1,0 +1,129 @@
+{% macro sls_block(dict) %}
+    {% for key, value in dict.items() %}
+    - {{ key }}: {{ value|json() }}
+    {% endfor %}
+{% endmacro %}
+
+{% set uwsgi = salt['pillar.get']('uwsgi', {
+  'lookup': salt['grains.filter_by']({
+    'Debian': {
+      'server_pkg'              : 'uwsgi',
+      'uwsgi_dir'               : '/etc/uwsgi',
+      'uwsgi_service'           : 'uwsgi',
+      'application_available'   : '/etc/uwsgi/apps-available',
+      'application_enabled'     : '/etc/uwsgi/apps-enabled',
+      'application_use_symlink' : True,
+      'emperor_pkg'             : 'uwsgi-emperor',
+      'emperor_service'         : 'uwsgi-emperor',
+      'emperor_dir'             : '/etc/uwsgi-emperor',
+      'vassal_available'        : '/etc/uwsgi-emperor/vassals',
+      'vassal_enabled'          : '/etc/uwsgi-emperor/vassals',
+      'vassal_use_symlink'      : False,
+      'emperor_config'          : 'emperor.ini',
+      'plugins'                 : ['uwsgi-plugin-python'],
+    },
+    'Arch': {
+      'server_pkg'              : 'uwsgi',
+      'uwsgi_dir'               : '/etc/uwsgi',
+      'uwsgi_service'           : 'uwsgi@',
+      'application_available'   : '/etc/uwsgi',
+      'application_enabled'     : '/etc/uwsgi',
+      'application_use_symlink' : False,
+      'emperor_pkg'             : 'uwsgi',
+      'emperor_service'         : 'emperor.uwsgi',
+      'emperor_dir'             : '/etc/uwsgi',
+      'vassal_available'        : '/etc/uwsgi/vassals',
+      'vassal_enabled'          : '/etc/uwsgi/vassals',
+      'vassal_use_symlink'      : False,
+      'emperor_config'          : 'emperor.ini',
+      'plugins'                 : ['uwsgi-plugin-python','uwsgi-plugin-python2'],
+    },
+    'RedHat': {
+      'server_pkg'              : 'uwsgi',
+      'uwsgi_service'           : 'uwsgi',
+      'application_available'   : '/etc/uwsgi',
+      'application_enabled'     : '/etc/uwsgi',
+      'application_use_symlink' : False,
+      'emperor_pkg'             : 'uwsgi',
+      'emperor_service'         : 'uwsgi',
+      'emperor_dir'             : '/etc',
+      'vassal_available'        : '/etc/uwsgi.d',
+      'vassal_enabled'          : '/etc/uwsgi.d',
+      'vassal_use_symlink'      : False,
+      'emperor_config'          : 'uwsgi.ini',
+      'plugins'                 : ['uwsgi-plugin-python'],
+    },
+
+  }, default='Debian' ),
+
+  'package': {
+    'opts': {},
+  },
+
+  'service': {
+    'enable': True,
+    'opts': {},
+  },
+
+  'applications': {
+    'disabled_postfix': '.disabled',
+    'symlink_opts': {},
+    'rename_opts': {},
+    'managed_opts': {},
+    'dir_opts': {
+      'makedirs': True,
+    },
+    'managed': {},
+  },
+
+  'emperor': {
+    'opts': {},
+    'config': salt['grains.filter_by']({
+      'Debian': {
+        'autoload': 'true',
+        'master': 'true',
+        'workers': '2',
+        'no-orphans': 'true',
+        'log-date': 'true',
+        'uid': 'www-data',
+        'gid': 'www-data',
+        'emperor': '/etc/uwsgi-emperor/vassals',
+      },
+      'RedHat': {
+        'autoload': 'true',
+        'master': 'true',
+        'workers': '2',
+        'no-orphans': 'true',
+        'log-date': 'true',
+        'uid': 'uwsgi',
+        'gid': 'uwsgi',
+        'emperor': '/etc/uwsgi.d',
+      },
+      'Arch': {
+          'uid': 'http',
+          'gid': 'http',
+          'emperor': '/etc/uwsgi/vassals',
+      },
+    }, default='Debian'),
+  },
+
+  'vassals': {
+    'disabled_postfix': '.disabled',
+    'symlink_opts': {},
+    'rename_opts': {},
+    'managed_opts': {},
+    'dir_opts': {
+      'makedirs': True,
+    },
+    'managed': {},
+  },
+
+}, merge=True) %}
+
+{%- if salt['grains.get']('os_family') == 'RedHat' %}
+  {%- if salt['grains.get']('osmajorrelease')|int < 7 %}
+    {%- if 'daemonize' not in uwsgi['emperor']['config'] %}
+      {%- do uwsgi['emperor']['config'].update({'daemonize': '/var/log/uwsgi.log'}) %}
+    {%- endif %}
+  {%- endif %}
+{%- endif %}

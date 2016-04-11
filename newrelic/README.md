@@ -13,4 +13,4 @@ newrelic:
   explain_enable: false
 ```
 
-Inspired mostly from (here)[https://github.com/saltstack-formulas/newrelic-formula].
+Inspired mostly from [here](https://github.com/saltstack-formulas/newrelic-formula).
