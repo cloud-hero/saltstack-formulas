@@ -1,0 +1,43 @@
+{% set host =  grains['fqdn'] %}
+{% set ip =  grains['ip_interfaces']['eth0'][0] %}
+elasticsearch:
+  version: 5.2.2
+  config:
+    cluster.name: PowerOverWhelming
+    node.name: {{ host }}
+    node.master: true
+    node.data: false
+    path.data: /data
+    network.host: {{ ip }}
+    http.port: 9200
+    discovery.zen.ping.unicast.hosts: ["host1", "host2", "host3"]
+    discovery.zen.minimum_master_nodes: 3
+    gateway.recover_after_nodes: 3
+    node.max_local_storage_nodes: 1
+    action.destructive_requires_name: true
+  sysconfig:
+    ES_STARTUP_SLEEP_TIME: 5
+    ES_HEAP_SIZE: 1g
+    MAX_OPEN_FILES: 65535
+  plugins:
+    lang-python: lang-python
+  jvm_opts: |
+      -Xms1g
+      -Xmx1g
+      -XX:+UseConcMarkSweepGC
+      -XX:CMSInitiatingOccupancyFraction=75
+      -XX:+UseCMSInitiatingOccupancyOnly
+      -XX:+DisableExplicitGC
+      -XX:+AlwaysPreTouch
+      -server
+      -Xss1m
+      -Djava.awt.headless=true
+      -Dfile.encoding=UTF-8
+      -Djna.nosys=true
+      -Djdk.io.permissionsUseCanonicalPath=true
+      -Dio.netty.noUnsafe=true
+      -Dio.netty.noKeySetOptimization=true
+      -Dlog4j.shutdownHookEnabled=false
+      -Dlog4j2.disable.jmx=true
+      -Dlog4j.skipJansi=true
+      -XX:+HeapDumpOnOutOfMemoryError
